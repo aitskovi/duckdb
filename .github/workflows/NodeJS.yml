@@ -26,7 +26,7 @@ defaults:
 env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
   TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-  AWS_ACCESS_KEY_ID: AKIAVBLKPL2ZW2T7TYFQ
+  AWS_ACCESS_KEY_ID: AKIAZZVHJE3G5RC2WSQS
   AWS_SECRET_ACCESS_KEY: ${{ secrets.NODE_PRE_GYP_SECRETACCESSKEY }}
   NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
 
@@ -56,25 +56,11 @@ jobs:
         GEN=ninja DISABLE_MAIN_DUCKDB_LIBRARY=1 BUILD_TPCH=1 BUILD_HTTPFS=1 STATIC_OPENSSL=1 make
 
     - name: Setup
-      run: ./scripts/node_version.sh upload
+      run: ./scripts/node_version.sh
 
-    - name: Node 10
-      run: ./scripts/node_build.sh 10
-
-    - name: Node 12
+    - name: Node 16
       if: github.ref == 'refs/heads/master'
-      run: ./scripts/node_build.sh 12
-
-    - name: Node 14
-      if: github.ref == 'refs/heads/master'
-      run: ./scripts/node_build.sh 14
-
-    - name: Node 15
-      if: github.ref == 'refs/heads/master'
-      run: ./scripts/node_build.sh 15
-
-    - name: Node 17
-      run: ./scripts/node_build.sh 17
+      run: ./scripts/node_build.sh 16
 
    osx-nodejs:
       if: github.ref == 'refs/heads/master'
@@ -96,67 +82,6 @@ jobs:
       - name: Setup
         run: ./scripts/node_version.sh
 
-      - name: Node 10
-        run: ./scripts/node_build.sh 10
-
-      - name: Node 12
+      - name: Node 16
         if: github.ref == 'refs/heads/master'
-        run: ./scripts/node_build.sh 12
-
-      - name: Node 14
-        if: github.ref == 'refs/heads/master'
-        run: ./scripts/node_build.sh 14
-
-      - name: Node 15
-        if: github.ref == 'refs/heads/master'
-        run: ./scripts/node_build.sh 15
-
-      - name: Node 17
-        run: ./scripts/node_build.sh 17
-
-   win-nodejs:
-     name: node.js Windows
-     runs-on: windows-latest
-     needs: linux-nodejs
-
-     strategy:
-       matrix:
-         node: [ '10', '12', '14', '15' ]
-         isMaster:
-            - ${{ github.ref == 'refs/heads/master' }}
-         exclude:
-           - isMaster: false
-             node: 12
-           - isMaster: false
-             node: 14
-
-     steps:
-       - uses: actions/setup-python@v2
-         with:
-           python-version: '3.8'
-
-       - uses: actions/checkout@v2
-         with:
-           fetch-depth: 0
-
-       - name: Setup Node
-         uses: actions/setup-node@v2
-         with:
-           node-version: ${{ matrix.node }}
-
-       - name: Versions
-         run: |
-           systeminfo
-           node -v
-           npm -v
-
-       - name: Windows Build Tools
-         run: |
-           choco install python visualstudio2019-workload-vctools -y
-           npm config set msvs_version 2019
-
-       - name: Node Version
-         run: ./scripts/node_version.sh
-
-       - name: Node
-         run: ./scripts/node_build_win.sh
+        run: ./scripts/node_build.sh 16
